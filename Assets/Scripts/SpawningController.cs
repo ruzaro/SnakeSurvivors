@@ -8,6 +8,8 @@ namespace SnakeSurvivors
         [SerializeField] private GameObject prefab;
 
         [SerializeField] private Transform target;
+        
+        [SerializeField] private SpatialPartitioner spatialPartitioner;
 
         private void Start()
         {
@@ -40,7 +42,7 @@ namespace SnakeSurvivors
             
                 enemy.transform.position = pos;
             
-                enemy.GetComponent<Enemy>().SetTarget(target);
+                enemy.GetComponent<Enemy>().SetTarget(target).AddSpatialPartitioner(spatialPartitioner);
             }
 
             StartCoroutine(SpawnCo());

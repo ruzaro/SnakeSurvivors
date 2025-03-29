@@ -1,6 +1,10 @@
 ﻿using System;
 using UnityEngine;
 
+// TODO:
+// - drop exp
+// - different types of movements (point to point)
+
 namespace SnakeSurvivors
 {
     public class Enemy : MonoBehaviour
@@ -8,8 +12,15 @@ namespace SnakeSurvivors
         [SerializeField] private float speed = 0.95f;
         [SerializeField] private Transform target;
         
+        [SerializeField] private float collisionRadius = 0.2f;
+        
         private Transform _target;
         private Transform _transform;
+        private SpatialPartitioner _spatialPartitioner;
+
+        private SpatialPartition _spatialPartition;
+
+        public float CollisionRadius => collisionRadius;
 
         private void Awake()
         {
@@ -17,9 +28,23 @@ namespace SnakeSurvivors
             _target = target;
         }
 
-        public void SetTarget(Transform target)
+        public Enemy SetTarget(Transform target)
         {
             _target = target;
+            return this;
+        }
+
+        public Enemy AddSpatialPartitioner(SpatialPartitioner spatialPartitioner)
+        {
+            _spatialPartitioner = spatialPartitioner;
+            if (_spatialPartition != null)
+            {
+                _spatialPartition.Remove(gameObject);
+            }
+
+            _spatialPartition = _spatialPartitioner.GetPartition(_transform.position);
+            _spatialPartition.Add(gameObject);
+            return this;
         }
 
         private void FixedUpdate()
@@ -38,6 +63,7 @@ namespace SnakeSurvivors
 
             _transform.position = curr + movement;
             
+            _spatialPartition = _spatialPartition.UpdatePartition(gameObject);
             // TODO push other enemies
         }
     }

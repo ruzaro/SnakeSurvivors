@@ -24,6 +24,11 @@ namespace SnakeSurvivors
         {
             _objects.Add(gameObject);
         }
+        
+        public void Remove(GameObject go)
+        {
+            _objects.Remove(go);
+        }
 
         public SpatialPartition UpdatePartition(GameObject gameObject)
         {
@@ -41,6 +46,9 @@ namespace SnakeSurvivors
         }
         
         public Vector2 Position => new Vector2(Index.x * SpatialPartitioner.PartitionWidth, Index.y *  SpatialPartitioner.PartitionHeight);
+
+        public IEnumerable<SpatialPartition> GetNeighbours(int distance = 1) => 
+            SpatialPartitioner.GetPartitionNeighbourhood(Index, distance);
 
         public IEnumerator<GameObject> GetEnumerator()
         {
@@ -87,15 +95,15 @@ namespace SnakeSurvivors
             return partition;
         }
 
-        public IEnumerator<SpatialPartition> GetPartitionNeighbourhood(Vector2Int index, int size = 1)
+        public IEnumerable<SpatialPartition> GetPartitionNeighbourhood(Vector2Int index, int distance = 1)
         {
             var centerX = index.x;
             var centerY = index.y;
 
-            var left = centerX - size;
-            var right = centerX + size;
-            var top = centerY - size;
-            var bottom = centerY + size;
+            var left = centerX - distance;
+            var right = centerX + distance;
+            var top = centerY - distance;
+            var bottom = centerY + distance;
 
             for (var x = left; x <= right; ++x)
             {

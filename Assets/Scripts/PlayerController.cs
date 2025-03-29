@@ -1,6 +1,11 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+
+// TODO:
+// - health
+// 
 
 namespace SnakeSurvivors
 {
@@ -11,6 +16,8 @@ namespace SnakeSurvivors
         [SerializeField] private UnityEvent<Vector2> onMove;
         
         [SerializeField] private SpatialPartitioner spatialPartitioner;
+        
+        [SerializeField] private float collisionRadius = 0.2f;
         
         private InputAction _moveAction;
         private InputAction _sprintAction;
@@ -23,7 +30,6 @@ namespace SnakeSurvivors
             _moveAction = InputSystem.actions.FindAction(Input.Player.Move);
             _sprintAction = InputSystem.actions.FindAction(Input.Player.Sprint);
             _spatialPartition = spatialPartitioner.GetPartition(_transform.position);
-            _spatialPartition.Add(gameObject);
         }
 
         private void FixedUpdate()
@@ -43,13 +49,41 @@ namespace SnakeSurvivors
             pos += moveValue.ToVec3();
             _transform.position = pos;
             
-            _spatialPartition = _spatialPartition.UpdatePartition(gameObject);
+            _spatialPartition = spatialPartitioner.GetPartition(_transform.position);
             
-            // TODO check collision with enemy
+            CollideWithEnemies();
             
             // TODO check collision with exp
             
             
+        }
+
+        private void CollideWithEnemies()
+        {
+            // TODO move this logic to enemies?
+            foreach (var partition in _spatialPartition.GetNeighbours())
+            {
+                var destroyed = new HashSet<GameObject>();
+                
+                foreach (var go in partition)
+                {
+                    if (!go.TryGetComponent(out Enemy enemy)) continue;
+
+                    var enemyPos = go.transform.position;
+
+                    if (Vector3.Distance(enemyPos, _transform.position) < collisionRadius + enemy.CollisionRadius)
+                    {
+                        destroyed.Add(go);
+                    }
+                }
+                
+                // TODO temporary destruction of enemies
+                foreach (var go in destroyed)
+                {
+                    partition.Remove(go);
+                    Destroy(go);
+                }
+            }
         }
     }
 }

@@ -365,13 +365,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1237925006}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 775af45d509f48819bdb29a20ec48803, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 1037505369860059820, guid: b93e14774cdc6da4ca3e436836bcc37c, type: 3}
   target: {fileID: 2116882920}
+  spatialPartitioner: {fileID: 1874863735}
 --- !u!1 &1311092193
 GameObject:
   m_ObjectHideFlags: 0
@@ -710,6 +711,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   spatialPartitioner: {fileID: 1874863735}
+  collisionRadius: 0.2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
