@@ -12,9 +12,12 @@ namespace SnakeSurvivors
         private Transform _transform;
         private Vector2 _posDelta;
 
+        private Vector2 _prevPos;
+
         private void Awake()
         {
             _transform = transform;
+            _prevPos = _transform.position;
         }
 
         public void SetPosDelta(Vector2 posDelta)
@@ -24,7 +27,15 @@ namespace SnakeSurvivors
         
         private void Update()
         {
-            background.uvRect = new Rect(background.uvRect.position + _posDelta * speed, background.uvRect.size);
+            Vector2 pos = _transform.position;
+
+            var diff = pos - _prevPos;
+            
+            background.uvRect = new Rect(background.uvRect.position + diff * speed, background.uvRect.size);
+
+            _prevPos = pos;
+            
+            // background.uvRect = new Rect(background.uvRect.position + _posDelta * speed, background.uvRect.size);
             _posDelta = Vector2.zero;
 
             _transform.position = target.position;

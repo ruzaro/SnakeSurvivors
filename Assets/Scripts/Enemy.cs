@@ -22,7 +22,7 @@ namespace SnakeSurvivors
             _target = target;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (_target == null) return;
 
@@ -37,6 +37,8 @@ namespace SnakeSurvivors
             var movement = direction * speed * Time.deltaTime;
 
             _transform.position = curr + movement;
+            
+            // TODO push other enemies
         }
     }
 }
