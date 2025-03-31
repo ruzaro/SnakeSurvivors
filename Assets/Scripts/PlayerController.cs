@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -7,79 +9,73 @@ namespace SnakeSurvivors
 {
     public class PlayerController : MonoBehaviour
     {
+        [SerializeField] [Min(0.0f)] private float cameraSpeed = 1.0f;
         [SerializeField] [Min(0.0f)] private float speed = 1f;
-
-        [SerializeField] private UnityEvent<Vector2> onMove;
         
         [SerializeField] private SpatialPartitioner spatialPartitioner;
         
         [SerializeField] private float collisionRadius = 0.2f;
+
+        [SerializeField] private SnakeBait snakeBait;
+
+        [SerializeField] private Transform center;
         
-        private InputAction _moveAction;
-        private InputAction _sprintAction;
-        private Transform _transform;
-        private SpatialPartition _spatialPartition;
+        [SerializeField] private SnakePart prefab;
+        [SerializeField] private float partsDistance = 0.1f;
+
+        private readonly List<SnakePart> _snakeParts = new();
+        private readonly CenterPosition _centerPosition = new();
 
         private void Awake()
         {
-            _transform = transform;
-            _moveAction = InputSystem.actions.FindAction(Input.Player.Move);
-            _sprintAction = InputSystem.actions.FindAction(Input.Player.Sprint);
-            _spatialPartition = spatialPartitioner.GetPartition(_transform.position);
-        }
-
-        private void FixedUpdate()
-        {
-            var speed = this.speed;
-
-            if (_sprintAction.IsPressed())
-            {
-                speed *= 2.0f;
-            }
-            
-            var moveValue = _moveAction.ReadValue<Vector2>() * speed * Time.deltaTime;
-
-            onMove?.Invoke(moveValue);
-            
-            var pos = _transform.position;
-            pos += moveValue.ToVec3();
-            _transform.position = pos;
-            
-            _spatialPartition = spatialPartitioner.GetPartition(_transform.position);
-            
-            CollideWithEnemies();
-            
-            // TODO check collision with exp
-            
             
         }
-
-        private void CollideWithEnemies()
+        
+        private void Start()
         {
-            // TODO move this logic to enemies?
-            foreach (var partition in _spatialPartition.GetNeighbours())
+            StartCoroutine(SpawnCo());
+        }
+
+        private void Update()
+        {
+            center.position = Vector3.MoveTowards(center.position, _centerPosition.CentralPosition, speed * Time.deltaTime);
+        }
+
+        private IEnumerator SpawnCo()
+        {
+            yield return new WaitForSeconds(2.0f);
+            
+            if (_snakeParts.Count > 5) yield break;
+
+            var lastPart = _snakeParts.LastOrDefault();
+
+            var isEmpty = lastPart == null;
+
+            var target = isEmpty ? snakeBait.transform : lastPart.transform;
+
+            var backward = -target.up * partsDistance;
+
+            var pos = target.position + backward;
+
+            var snakePart = Instantiate(prefab, transform);
+        
+            snakePart.transform.position = pos;
+            snakePart.transform.rotation = target.rotation;
+            
+            snakePart.Attach(target, spatialPartitioner, collisionRadius, partsDistance);
+            
+            _snakeParts.Add(snakePart);
+
+            var weight = 5.0f / _snakeParts.Count; // TODO better weight?
+            
+            _centerPosition.AddTarget(snakePart.transform, weight);
+
+            if (isEmpty)
             {
-                var destroyed = new HashSet<GameObject>();
-                
-                foreach (var go in partition)
-                {
-                    if (!go.TryGetComponent(out Enemy enemy)) continue;
-
-                    var enemyPos = go.transform.position;
-
-                    if (Vector3.Distance(enemyPos, _transform.position) < collisionRadius + enemy.CollisionRadius)
-                    {
-                        destroyed.Add(go);
-                    }
-                }
-                
-                // TODO temporary destruction of enemies
-                foreach (var go in destroyed)
-                {
-                    partition.Remove(go);
-                    Destroy(go);
-                }
+                snakeBait.Attach(snakePart.transform, partsDistance);
             }
+
+            StartCoroutine(SpawnCo());
         }
     }
 }

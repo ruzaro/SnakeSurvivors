@@ -54,7 +54,7 @@ namespace SnakeSurvivors
 
             var direction = delta.normalized;
 
-            var movement = direction * speed * Time.deltaTime;
+            var movement = direction * speed * Time.fixedDeltaTime;
 
             _transform.position = curr + movement;
             
