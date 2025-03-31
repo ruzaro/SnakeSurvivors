@@ -3,10 +3,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-// TODO:
-// - health
-// 
-
 namespace SnakeSurvivors
 {
     public class PlayerController : MonoBehaviour

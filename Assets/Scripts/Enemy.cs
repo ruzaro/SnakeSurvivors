@@ -1,9 +1,4 @@
-﻿using System;
-using UnityEngine;
-
-// TODO:
-// - drop exp
-// - different types of movements (point to point)
+﻿using UnityEngine;
 
 namespace SnakeSurvivors
 {
