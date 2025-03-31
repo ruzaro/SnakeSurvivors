@@ -4,42 +4,47 @@ using UnityEngine;
 
 namespace SnakeSurvivors
 {
-    public class SpatialPartition : IEnumerable<GameObject>
+    public interface IPartitionable
+    {
+        Vector3 Position { get; }
+    }
+    
+    public class SpatialPartition<TObject> : IEnumerable<TObject> where TObject : IPartitionable
     {
         public Vector2Int Index { get; private set; }
         
-        public SpatialPartitioner SpatialPartitioner { get; private set; }
+        public SpatialPartitioner<TObject> SpatialPartitioner { get; private set; }
         
-        private readonly HashSet<GameObject> _objects = new();
+        private readonly HashSet<TObject> _objects = new();
 
         public int Count => _objects.Count;
         
-        public SpatialPartition(Vector2Int index, SpatialPartitioner spatialPartitioner)
+        public SpatialPartition(Vector2Int index, SpatialPartitioner<TObject> spatialPartitioner)
         {
             Index = index;
             SpatialPartitioner = spatialPartitioner;
         }
 
-        public void Add(GameObject gameObject)
+        public void Add(TObject toAdd)
         {
-            _objects.Add(gameObject);
+            _objects.Add(toAdd);
         }
         
-        public void Remove(GameObject go)
+        public void Remove(TObject toRemove)
         {
-            _objects.Remove(go);
+            _objects.Remove(toRemove);
         }
 
-        public SpatialPartition UpdatePartition(GameObject gameObject)
+        public SpatialPartition<TObject> UpdatePartition(TObject toUpdate)
         {
-            var pos = gameObject.transform.position;
+            var pos = toUpdate.Position;
 
             var partition = SpatialPartitioner.GetPartition(pos);
 
             if (partition != this)
             {
-                partition._objects.Add(gameObject);
-                _objects.Remove(gameObject);
+                partition._objects.Add(toUpdate);
+                _objects.Remove(toUpdate);
             }
 
             return partition;
@@ -47,55 +52,54 @@ namespace SnakeSurvivors
         
         public Vector2 Position => new Vector2(Index.x * SpatialPartitioner.PartitionWidth, Index.y *  SpatialPartitioner.PartitionHeight);
 
-        public IEnumerable<SpatialPartition> GetNeighbours(int distance = 1) => 
+        public IEnumerable<SpatialPartition<TObject>> GetNeighbours(int distance = 1) => 
             SpatialPartitioner.GetPartitionNeighbourhood(Index, distance);
 
-        public IEnumerator<GameObject> GetEnumerator()
-        {
-            return _objects.GetEnumerator();
-        }
+        public IEnumerator<TObject> GetEnumerator() => _objects.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
     
-    public class SpatialPartitioner : MonoBehaviour
+    public class SpatialPartitioner<TObject>  : IEnumerable<SpatialPartition<TObject>> where TObject : IPartitionable
     {
-        [SerializeField] private float partitionWidth = 1.0f;
-        public float PartitionWidth => partitionWidth;
+        private readonly float _partitionWidth;
+        public float PartitionWidth => _partitionWidth;
         
-        [SerializeField] private float partitionHeight = 1.0f;
-        public float PartitionHeight => partitionHeight;
+        private readonly float _partitionHeight;
+        public float PartitionHeight => _partitionHeight;
 
-        private readonly Dictionary<Vector2Int, SpatialPartition> _partitions = new();
+        private readonly Dictionary<Vector2Int, SpatialPartition<TObject>> _partitions = new();
 
-
+        public SpatialPartitioner(float partitionWidth, float partitionHeight)
+        {
+            _partitionWidth = partitionWidth;
+            _partitionHeight = partitionHeight;
+        }
+        
         public Vector2Int GetPartitionIndex(Vector2 position)
         {
             var xPos = position.x;
             var yPos = position.y;
             
-            var x = Mathf.FloorToInt(xPos / partitionWidth);
-            var y = Mathf.FloorToInt(yPos / partitionHeight);
+            var x = Mathf.FloorToInt(xPos / _partitionWidth);
+            var y = Mathf.FloorToInt(yPos / _partitionHeight);
             
             return new Vector2Int(x, y);
         }
 
-        public SpatialPartition GetPartition(Vector2 pos) => GetPartition(GetPartitionIndex(pos));
+        public SpatialPartition<TObject> GetPartition(Vector2 pos) => GetPartition(GetPartitionIndex(pos));
 
-        public SpatialPartition GetPartition(Vector2Int index)
+        public SpatialPartition<TObject> GetPartition(Vector2Int index)
         {
             if (_partitions.TryGetValue(index, out var partition)) return partition;
             
-            partition = new SpatialPartition(index, this);
+            partition = new SpatialPartition<TObject>(index, this);
             _partitions.Add(index, partition);
 
             return partition;
         }
 
-        public IEnumerable<SpatialPartition> GetPartitionNeighbourhood(Vector2Int index, int distance = 1)
+        public IEnumerable<SpatialPartition<TObject>> GetPartitionNeighbourhood(Vector2Int index, int distance = 1)
         {
             var centerX = index.x;
             var centerY = index.y;
@@ -116,33 +120,18 @@ namespace SnakeSurvivors
                 }
             }
         }
-        
-#if UNITY_EDITOR
-        private void OnDrawGizmos()
-        {
-            foreach (var (index, partition) in _partitions)
-            {
-                var pos = partition.Position;
-                var leftTop = pos.ToVec3();
-                var leftBottom = (pos + new Vector2(0, partitionHeight)).ToVec3();
-                var rightTop = (pos + new Vector2(partitionWidth, 0)).ToVec3();
-                var rightBottom = (pos + new Vector2(partitionWidth, partitionHeight)).ToVec3();
 
-                if (partition.Count > 0)
-                {
-                    Gizmos.color = Color.blue;
-                }
-                else
-                {
-                    Gizmos.color = Color.white;
-                }
-                
-                Gizmos.DrawLine(leftTop, rightTop);
-                Gizmos.DrawLine(leftTop, leftBottom);
-                Gizmos.DrawLine(rightBottom, rightTop);
-                Gizmos.DrawLine(rightBottom, leftBottom);
+        public IEnumerator<SpatialPartition<TObject>> GetEnumerator()
+        {
+            foreach (var partition in _partitions.Values)
+            {
+                yield return partition;
             }
         }
-#endif
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 }

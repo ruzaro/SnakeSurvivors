@@ -14,8 +14,8 @@ namespace SnakeSurvivors
 
         private Transform _followTarget;
 
-        private SpatialPartitioner _spatialPartitioner;
-        private SpatialPartition _spatialPartition;
+        private SpatialPartitioner<Enemy> _spatialPartitioner;
+        private SpatialPartition<Enemy> _spatialPartition;
 
         private float _collisionRadius;
         private float _distance;
@@ -25,7 +25,7 @@ namespace SnakeSurvivors
             _transform = transform;
         }
 
-        public void Attach(Transform followTarget, SpatialPartitioner spatialPartitioner, float collisionRadius, float distance)
+        public void Attach(Transform followTarget, SpatialPartitioner<Enemy> spatialPartitioner, float collisionRadius, float distance)
         {
             _followTarget = followTarget;
             _spatialPartitioner = spatialPartitioner;
@@ -69,17 +69,15 @@ namespace SnakeSurvivors
             // TODO move this logic to enemies?
             foreach (var partition in _spatialPartition.GetNeighbours())
             {
-                var destroyed = new HashSet<GameObject>();
+                var destroyed = new HashSet<Enemy>();
                 
-                foreach (var go in partition)
+                foreach (var enemy in partition)
                 {
-                    if (!go.TryGetComponent(out Enemy enemy)) continue;
+                    var enemyPos = enemy.Position;
 
-                    var enemyPos = go.transform.position;
-
-                    if (Vector3.Distance(enemyPos, _transform.position) < _collisionRadius + enemy.CollisionRadius)
+                    if (Vector3.Distance(enemyPos, _transform.position) < _collisionRadius + enemy.Size)
                     {
-                        destroyed.Add(go);
+                        destroyed.Add(enemy);
                     }
                 }
                 
@@ -87,7 +85,7 @@ namespace SnakeSurvivors
                 foreach (var go in destroyed)
                 {
                     partition.Remove(go);
-                    Destroy(go);
+                    Destroy(go.gameObject);
                 }
             }
         }

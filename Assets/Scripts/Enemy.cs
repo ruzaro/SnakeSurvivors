@@ -1,21 +1,24 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace SnakeSurvivors
 {
-    public class Enemy : MonoBehaviour
+    public class Enemy : MonoBehaviour, IPartitionable
     {
+        [SerializeField] private float size = 0.2f;
+        public float Size => size;
+        
         [SerializeField] private float speed = 0.95f;
         [SerializeField] private Transform target;
+        [SerializeField] private float pushForce = 0.4f;
         
-        [SerializeField] private float collisionRadius = 0.2f;
+        public Vector3 Position => _transform.position;
         
         private Transform _target;
         private Transform _transform;
-        private SpatialPartitioner _spatialPartitioner;
+        private SpatialPartitioner<Enemy> _spatialPartitioner;
 
-        private SpatialPartition _spatialPartition;
-
-        public float CollisionRadius => collisionRadius;
+        private SpatialPartition<Enemy> _spatialPartition;
 
         private void Awake()
         {
@@ -29,16 +32,16 @@ namespace SnakeSurvivors
             return this;
         }
 
-        public Enemy AddSpatialPartitioner(SpatialPartitioner spatialPartitioner)
+        public Enemy AddSpatialPartitioner(SpatialPartitioner<Enemy> spatialPartitioner)
         {
             _spatialPartitioner = spatialPartitioner;
             if (_spatialPartition != null)
             {
-                _spatialPartition.Remove(gameObject);
+                _spatialPartition.Remove(this);
             }
 
             _spatialPartition = _spatialPartitioner.GetPartition(_transform.position);
-            _spatialPartition.Add(gameObject);
+            _spatialPartition.Add(this);
             return this;
         }
 
@@ -58,8 +61,34 @@ namespace SnakeSurvivors
 
             _transform.position = curr + movement;
             
-            _spatialPartition = _spatialPartition.UpdatePartition(gameObject);
-            // TODO push other enemies
+            _spatialPartition = _spatialPartition.UpdatePartition(this);
+            
+            PushOtherEnemiesAway();
         }
+
+        private void PushOtherEnemiesAway()
+        {
+            foreach (var other in _spatialPartition)
+            {
+                if (other == this) continue;
+                
+                var otherPos = other.transform.position;
+                var thisPos = _transform.position;
+                
+                var dir = (otherPos - thisPos).normalized;
+
+                if (Vector2.Distance(otherPos, thisPos) < size + other.size)
+                {
+                    other.transform.position += dir * Time.fixedDeltaTime * pushForce;
+                }
+            }
+        }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            Gizmos.DrawSphere(transform.position, size);
+        }
+#endif
     }
 }

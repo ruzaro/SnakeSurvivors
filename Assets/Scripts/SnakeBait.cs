@@ -16,7 +16,7 @@ namespace SnakeSurvivors
         private void Awake()
         {
             _transform = transform;
-            _moveAction = InputSystem.actions.FindAction(Input.Player.Move);
+            _moveAction = InputSystem.actions.FindAction(Const.Input.Player.Move);
         }
 
         public void Attach(Transform target, float distance)
