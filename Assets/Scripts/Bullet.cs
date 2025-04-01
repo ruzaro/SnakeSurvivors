@@ -9,14 +9,8 @@ namespace SnakeSurvivors
         [SerializeField] private float size = 0.2f;
         [SerializeField] private float speed = 1.0f;
         [SerializeField] private float destructionTimer = 5.0f;
-        
-        private readonly SpatialPartitioner<Enemy> _spatialPartitioner = Singletons.EnemySpatialPartitioner;
-        private SpatialPartition<Enemy> _spatialPartition;
 
-        private void Awake()
-        {
-            _spatialPartition = _spatialPartitioner.GetPartition(transform.position);
-        }
+        [SerializeField] private SPColliderTag enemyTag;
 
         private void Start()
         {
@@ -37,19 +31,15 @@ namespace SnakeSurvivors
             var pos = transform.position;
             pos += dir * speed * Time.fixedDeltaTime;
             transform.position = pos;
+        }
 
-            _spatialPartition = _spatialPartitioner.GetPartition(pos);
-            
-            foreach (var enemy in _spatialPartition)
+        private void OnSPCollision(SPCollider other)
+        {
+            if (other.Tag == enemyTag)
             {
-                var enemyPos = enemy.Position;
-
-                if (Vector2.Distance(pos, enemyPos) < enemy.Size + size)
-                {
-                    Destroy(enemy.gameObject);
-                    Destroy(gameObject);
-                    break;
-                }
+                // TODO destruction while colliding
+                Destroy(other.gameObject);
+                Destroy(gameObject);
             }
         }
 

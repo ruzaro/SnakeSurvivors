@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.InputSystem;
 
 namespace SnakeSurvivors
 {
@@ -11,8 +9,6 @@ namespace SnakeSurvivors
     {
         [SerializeField] [Min(0.0f)] private float cameraSpeed = 1.0f;
         [SerializeField] [Min(0.0f)] private float speed = 1f;
-        
-        [SerializeField] private float collisionRadius = 0.2f;
 
         [SerializeField] private SnakeBait snakeBait;
 
@@ -20,8 +16,7 @@ namespace SnakeSurvivors
         
         [SerializeField] private SnakePart prefab;
         [SerializeField] private float partsDistance = 0.1f;
-
-        private readonly SpatialPartitioner<Enemy> _spatialPartitioner = Singletons.EnemySpatialPartitioner;
+        
         private readonly List<SnakePart> _snakeParts = new();
         private readonly CenterPosition _centerPosition = new();
 
@@ -63,7 +58,7 @@ namespace SnakeSurvivors
             snakePart.transform.position = pos;
             snakePart.transform.rotation = target.rotation;
             
-            snakePart.Attach(target, _spatialPartitioner, collisionRadius, partsDistance);
+            snakePart.Attach(target, partsDistance);
             
             _snakeParts.Add(snakePart);
 

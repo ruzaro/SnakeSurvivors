@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace SnakeSurvivors
 {
@@ -13,11 +11,7 @@ namespace SnakeSurvivors
         [SerializeField] [Min(0.0f)] private float rotationSpeed = 1.0f;
 
         private Transform _followTarget;
-
-        private SpatialPartitioner<Enemy> _spatialPartitioner;
-        private SpatialPartition<Enemy> _spatialPartition;
-
-        private float _collisionRadius;
+        
         private float _distance;
         
         private void Awake()
@@ -25,12 +19,9 @@ namespace SnakeSurvivors
             _transform = transform;
         }
 
-        public void Attach(Transform followTarget, SpatialPartitioner<Enemy> spatialPartitioner, float collisionRadius, float distance)
+        public void Attach(Transform followTarget, float distance)
         {
             _followTarget = followTarget;
-            _spatialPartitioner = spatialPartitioner;
-            _spatialPartition = spatialPartitioner.GetPartition(_transform.position);
-            _collisionRadius = collisionRadius;
             _distance = distance;
         }
 
@@ -56,40 +47,16 @@ namespace SnakeSurvivors
             
             pos += dif;
             _transform.position = pos;
-            
-            _spatialPartition = _spatialPartitioner.GetPartition(_transform.position);
-            
-            CollideWithEnemies();
+        }
+
+        private void OnSPCollision(SPCollider other)
+        {
+            // TODO colliding with enemies
             
             // TODO check collision with exp
         }
 
-        private void CollideWithEnemies()
-        {
-            // TODO move this logic to enemies?
-            foreach (var partition in _spatialPartition.GetNeighbours())
-            {
-                var destroyed = new HashSet<Enemy>();
-                
-                foreach (var enemy in partition)
-                {
-                    var enemyPos = enemy.Position;
-
-                    if (Vector3.Distance(enemyPos, _transform.position) < _collisionRadius + enemy.Size)
-                    {
-                        destroyed.Add(enemy);
-                    }
-                }
-                
-                // TODO temporary destruction of enemies
-                foreach (var go in destroyed)
-                {
-                    partition.Remove(go);
-                    Destroy(go.gameObject);
-                }
-            }
-        }
-
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             if (_followTarget == null) return;
@@ -107,7 +74,6 @@ namespace SnakeSurvivors
             
             Gizmos.color = Color.green;
             Gizmos.DrawLine(pos, pos + dir);
-            Gizmos.DrawWireSphere(pos, _collisionRadius);
             
             Gizmos.color = Color.red;
             Gizmos.DrawLine(pos, pos + dirRight);
@@ -117,5 +83,6 @@ namespace SnakeSurvivors
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(pos, pos + rotated);
         }
+#endif
     }
 }

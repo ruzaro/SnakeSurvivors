@@ -317,7 +317,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 5231679340724152265, guid: b93e14774cdc6da4ca3e436836bcc37c, type: 3}
   target: {fileID: 697976654}
-  maxEnemies: 80
+  maxEnemies: 200
 --- !u!1 &1570163216
 GameObject:
   m_ObjectHideFlags: 0
