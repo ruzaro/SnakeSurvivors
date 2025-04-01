@@ -13,12 +13,12 @@ namespace SnakeSurvivors
             {
                 if (_targets.Count == 0) return Vector3.zero;
                 
-                var sum = Vector3.zero;
+                var sum = Vector2.zero;
                 var weightSum = 0.0f;
 
                 foreach (var (t, w) in _targets)
                 {
-                    sum += t.position * w;
+                    sum += (Vector2)t.position * w;
                     weightSum += w;
                 }
 

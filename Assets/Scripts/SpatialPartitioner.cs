@@ -6,7 +6,7 @@ namespace SnakeSurvivors
 {
     public interface IPartitionable
     {
-        Vector3 Position { get; }
+        Vector2 Position { get; }
     }
     
     public class SpatialPartition<TObject> : IEnumerable<TObject> where TObject : IPartitionable

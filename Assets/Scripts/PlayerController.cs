@@ -32,19 +32,21 @@ namespace SnakeSurvivors
         
         private void Start()
         {
-            // StartCoroutine(SpawnCo());
+            StartCoroutine(SpawnCo());
         }
 
         private void Update()
         {
-            center.position = Vector3.MoveTowards(center.position, _centerPosition.CentralPosition, speed * Time.deltaTime);
+            Vector3 targetPosition = _centerPosition.CentralPosition;
+            targetPosition.z = center.position.z;
+            center.position = Vector3.MoveTowards(center.position, targetPosition, speed * Time.deltaTime);
         }
 
         private IEnumerator SpawnCo()
         {
             yield return new WaitForSeconds(2.0f);
             
-            if (_snakeParts.Count > 5) yield break;
+            if (_snakeParts.Count > 1) yield break;
 
             var lastPart = _snakeParts.LastOrDefault();
 

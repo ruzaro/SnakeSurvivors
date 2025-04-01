@@ -107,6 +107,7 @@ namespace SnakeSurvivors
             
             Gizmos.color = Color.green;
             Gizmos.DrawLine(pos, pos + dir);
+            Gizmos.DrawWireSphere(pos, _collisionRadius);
             
             Gizmos.color = Color.red;
             Gizmos.DrawLine(pos, pos + dirRight);
