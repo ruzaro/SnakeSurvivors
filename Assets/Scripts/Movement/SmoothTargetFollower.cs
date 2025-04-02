@@ -2,30 +2,29 @@
 
 namespace SnakeSurvivors
 {
-    public class SnakePart : MonoBehaviour
+    public class SmoothTargetFollower : MonoBehaviour
     {
-        private Transform _transform;
-        
         [SerializeField] [Min(0.0f)] private float speed = 1f;
 
         [SerializeField] [Min(0.0f)] private float rotationSpeed = 1.0f;
+        
+        [SerializeField] private float distance = 1.0f;
+        public float Distance => distance;
 
         private Transform _followTarget;
+        private Transform _transform;
         
-        private float _distance;
+        public void Attach(Transform followTarget)
+        {
+            _followTarget = followTarget;
+        }
         
         private void Awake()
         {
             _transform = transform;
         }
 
-        public void Attach(Transform followTarget, float distance)
-        {
-            _followTarget = followTarget;
-            _distance = distance;
-        }
-
-        private void FixedUpdate()
+        private void Update()
         {
             var dir = _transform.up;
 
@@ -34,28 +33,21 @@ namespace SnakeSurvivors
 
             var targetRot = (targetPos - _transform.position).normalized;
             
-            var rotated = Vector3.RotateTowards(dir, targetRot, rotationSpeed * Time.fixedDeltaTime, 0.0f);
+            var rotated = Vector3.RotateTowards(dir, targetRot, rotationSpeed * Time.deltaTime, 0.0f);
 
             _transform.rotation = Quaternion.LookRotation(Vector3.forward, rotated);
 
             dir = _transform.up;
             
             var pos = _transform.position;
-            if (Vector2.Distance(targetPos, pos) < _distance) return;
+            if (Vector2.Distance(targetPos, pos) < distance) return;
             
-            var dif = dir * speed * Time.fixedDeltaTime;
+            var dif = dir * speed * Time.deltaTime;
             
             pos += dif;
             _transform.position = pos;
         }
-
-        private void OnSPCollision(SPCollider other)
-        {
-            // TODO colliding with enemies
-            
-            // TODO check collision with exp
-        }
-
+        
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
