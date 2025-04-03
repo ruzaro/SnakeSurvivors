@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -15,19 +16,23 @@ namespace SnakeSurvivors
         [SerializeField] private Transform bulletsActiveParent;
 
         private BulletPool _pool;
+        
+        private readonly HashSet<StraightPathFollower> _followers = new();
 
         private void Awake()
         {
-            _pool = new(bulletPrefab, bulletsPoolParent, maxBullets, maxBullets);
+            _pool = new(this, bulletPrefab, bulletsPoolParent, maxBullets, maxBullets);
         }
 
         private class BulletPool : ObjectPool<Bullet>
         {
+            private readonly BulletSpawner _spawner;
             private readonly Bullet _prefab;
             private readonly Transform _parent;
             
-            public BulletPool(Bullet prefab, Transform parent, int initialCapacity, int maxSize, bool collectionChecks = true) : base(initialCapacity, maxSize, collectionChecks)
+            public BulletPool(BulletSpawner spawner, Bullet prefab, Transform parent, int initialCapacity, int maxSize, bool collectionChecks = true) : base(initialCapacity, maxSize, collectionChecks)
             {
+                _spawner = spawner;
                 _prefab = prefab;
                 _parent = parent;
             }
@@ -57,12 +62,20 @@ namespace SnakeSurvivors
             public override void OnGet(Bullet bullet)
             {
                 bullet.gameObject.SetActive(true);
+                if (bullet.TryGetComponent(out StraightPathFollower pathFollower))
+                {
+                    _spawner._followers.Add(pathFollower);   
+                }
             }
 
             public override void OnRelease(Bullet bullet)
             {
                 bullet.gameObject.SetActive(false);
                 bullet.transform.SetParent(_parent);
+                if (bullet.TryGetComponent(out StraightPathFollower pathFollower))
+                {
+                    _spawner._followers.Remove(pathFollower);   
+                }
             }
 
             public override void OnDestroy(Bullet bullet)
@@ -74,6 +87,14 @@ namespace SnakeSurvivors
         private void Start()
         {
             StartCoroutine(BulletSpawnCo());
+        }
+
+        private void Update()
+        {
+            foreach (var pathFollower in _followers)
+            {
+                pathFollower.OnUpdate(Time.deltaTime);
+            }
         }
 
         private IEnumerator BulletSpawnCo()

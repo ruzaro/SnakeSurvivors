@@ -13,7 +13,7 @@ namespace SnakeSurvivors
             _target = target;
         }
         
-        private void Update()
+        public void OnUpdate(float deltaTime)
         {
             if (_target == null) return;
 
@@ -25,7 +25,7 @@ namespace SnakeSurvivors
 
             var direction = delta.normalized;
 
-            var movement = direction * speed * Time.deltaTime;
+            var movement = direction * speed * deltaTime;
             
             transform.position = curr + movement;
         }

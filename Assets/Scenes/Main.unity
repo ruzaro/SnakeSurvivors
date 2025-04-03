@@ -617,8 +617,8 @@ MonoBehaviour:
   poolParent: {fileID: 1750214830}
   enemiesParent: {fileID: 591608835}
   target: {fileID: 697976654}
-  maxEnemies: 100
-  enemiesBatch: 20
+  maxEnemies: 1000
+  enemiesBatch: 100
 --- !u!1 &1555127543
 GameObject:
   m_ObjectHideFlags: 0

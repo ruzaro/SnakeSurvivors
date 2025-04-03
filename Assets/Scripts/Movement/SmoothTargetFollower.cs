@@ -24,7 +24,7 @@ namespace SnakeSurvivors
             _transform = transform;
         }
 
-        private void Update()
+        public void OnUpdate(float deltaTime)
         {
             var dir = _transform.up;
 
@@ -33,7 +33,7 @@ namespace SnakeSurvivors
 
             var targetRot = (targetPos - _transform.position).normalized;
             
-            var rotated = Vector3.RotateTowards(dir, targetRot, rotationSpeed * Time.deltaTime, 0.0f);
+            var rotated = Vector3.RotateTowards(dir, targetRot, rotationSpeed * deltaTime, 0.0f);
 
             _transform.rotation = Quaternion.LookRotation(Vector3.forward, rotated);
 
@@ -42,7 +42,7 @@ namespace SnakeSurvivors
             var pos = _transform.position;
             if (Vector2.Distance(targetPos, pos) < distance) return;
             
-            var dif = dir * speed * Time.deltaTime;
+            var dif = dir * speed * deltaTime;
             
             pos += dif;
             _transform.position = pos;

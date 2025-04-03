@@ -20,6 +20,7 @@ namespace SnakeSurvivors
         [SerializeField] private SnakePart prefab;
         
         private readonly List<SnakePart> _snakeParts = new();
+        private readonly HashSet<SmoothTargetFollower> _snakePartsMovement = new();
         private readonly CenterPosition _centerPosition = new();
         private HealthPool _health;
         private float _damageCooldownTimer;
@@ -50,6 +51,11 @@ namespace SnakeSurvivors
             {
                 _damageCooldownTimer = 0.0f;
             }
+            
+            foreach (var targetFollower in _snakePartsMovement)
+            {
+                targetFollower.OnUpdate(Time.deltaTime);
+            }
         }
 
         private IEnumerator SpawnCo()
@@ -72,6 +78,7 @@ namespace SnakeSurvivors
             {
                 distance = targetFollower.Distance;
                 targetFollower.Attach(target);
+                _snakePartsMovement.Add(targetFollower);
             }
 
             var backward = -target.up * distance;

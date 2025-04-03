@@ -6,12 +6,12 @@ namespace SnakeSurvivors
     {
         [SerializeField] private float speed = 1.0f;
         
-        private void Update()
+        public void OnUpdate(float deltaTime)
         {
             var dir = transform.up;
             
             var pos = transform.position;
-            pos += dir * speed * Time.deltaTime;
+            pos += dir * speed * deltaTime;
             transform.position = pos;
         }
     }
