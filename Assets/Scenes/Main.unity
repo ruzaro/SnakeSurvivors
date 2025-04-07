@@ -619,6 +619,7 @@ MonoBehaviour:
   target: {fileID: 697976654}
   maxEnemies: 1000
   enemiesBatch: 100
+  batchesCount: 20
 --- !u!1 &1555127543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1096,7 +1097,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3, y: 143}
+  m_AnchoredPosition: {x: -267, y: 176}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1970237589

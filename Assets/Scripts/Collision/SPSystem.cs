@@ -33,7 +33,7 @@ namespace SnakeSurvivors
         {
             foreach (var spatialPartitioner in _spatialPartitioners)
             {
-                foreach (var spatialPartition in spatialPartitioner)
+                foreach (var (_, spatialPartition) in spatialPartitioner.Partitions)
                 {
                     var pos = spatialPartition.Position;
                     var leftTop = pos.ToVec3();

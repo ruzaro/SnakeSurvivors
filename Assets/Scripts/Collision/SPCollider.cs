@@ -20,11 +20,14 @@ namespace SnakeSurvivors
         private SpatialPartitioner _spatialPartitioner;
         private SpatialPartition _spatialPartition;
 
+        private Transform _transform;
+
         private Vector2 _position;
         public Vector2 Position => _position;
 
         private void Awake()
         {
+            _transform = transform;
             AddSpatialPartitioner();
             UpdatePosition();
         }
@@ -45,7 +48,7 @@ namespace SnakeSurvivors
 
         private void UpdatePosition()
         {
-            _position = transform.position;
+            _position = _transform.position;
             UpdatePartition();
         }
 

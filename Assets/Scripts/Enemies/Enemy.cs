@@ -24,7 +24,7 @@ namespace SnakeSurvivors
             if (other.Tag == enemyTag)
             {
                 // Push other enemies away
-                Vector2 otherPos = other.transform.position;
+                Vector2 otherPos = other.Position;
                 Vector2 thisPos = _transform.position;
             
                 var dir = (otherPos - thisPos).normalized;

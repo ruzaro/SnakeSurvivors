@@ -9,13 +9,15 @@ using UnityEngine;
 
 namespace SnakeSurvivors
 {
-    public class SpatialPartition : IEnumerable<SPCollider>, IPoolableObject
+    public class SpatialPartition : IPoolableObject
     {
         public Vector2Int Index { get; private set; }
 
         public SpatialPartitioner SpatialPartitioner { get; }
         
         private readonly HashSet<SPCollider> _objects = new();
+        public IReadOnlyCollection<SPCollider> Objects => _objects;
+        
         private readonly HashSet<SPCollider> _toRemove = new();
 
         public int Count => _objects.Count;
@@ -52,29 +54,25 @@ namespace SnakeSurvivors
         public IEnumerable<SpatialPartition> GetNeighbours(int distance = 1) => 
             SpatialPartitioner.GetPartitionNeighbourhood(Index, distance);
 
-        public IEnumerator<SPCollider> GetEnumerator() => _objects.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
         public void Clear()
         {
             foreach (var collider in _toRemove)
             {
                 _objects.Remove(collider);
             }
-            _toRemove.Clear();
             
-            _objects.RemoveWhere(x => x == null);
+            _toRemove.Clear();
         }
     }
     
-    public class SpatialPartitioner  : IEnumerable<SpatialPartition>
+    public class SpatialPartitioner
     {
         private readonly SPPartitioner _config;
         public float PartitionWidth => _config.PartitionWidth;
         public float PartitionHeight => _config.PartitionHeight;
 
         private readonly Dictionary<Vector2Int, SpatialPartition> _partitions = new();
+        public IReadOnlyDictionary<Vector2Int, SpatialPartition> Partitions => _partitions;
 
         private readonly BaseObjectsPool<SpatialPartition> _partitionsPool = new();
 
@@ -121,24 +119,42 @@ namespace SnakeSurvivors
         {
             foreach (var (_, partition) in _partitions)
             {
-                foreach (var collider in partition)
+                foreach (var collider in partition.Objects)
                 {
                     var thisRadius = collider.Radius;
                     var thisPosition = collider.Position;
-                    
-                    foreach (var neighbour in partition.GetNeighbours())
-                    {
-                        foreach (var other in neighbour)
-                        {
-                            if (other == collider) continue;
-                            if (other == null) continue;
-                            
-                            var otherRadius = other.Radius;
-                            var otherPosition = other.Position;
 
-                            if (Vector2.Distance(thisPosition, otherPosition) < thisRadius + otherRadius)
+                    var index = partition.Index;
+
+                    const int distance = 1;
+                    
+                    var centerX = index.x;
+                    var centerY = index.y;
+
+                    var left = centerX - distance;
+                    var right = centerX + distance;
+                    var top = centerY - distance;
+                    var bottom = centerY + distance;
+
+                    for (var x = left; x <= right; ++x)
+                    {
+                        for (var y = top; y <= bottom; ++y)
+                        {
+                            if (_partitions.TryGetValue(new Vector2Int(x, y), out var neighbour))
                             {
-                                collider.OnCollision(other);
+                                foreach (var other in neighbour.Objects)
+                                {
+                                    if (other == collider) continue;
+                                    if (other == null) continue;
+                            
+                                    var otherRadius = other.Radius;
+                                    var otherPosition = other.Position;
+
+                                    if (Vector2.Distance(thisPosition, otherPosition) < thisRadius + otherRadius)
+                                    {
+                                        collider.OnCollision(other);
+                                    }
+                                }
                             }
                         }
                     }
@@ -184,15 +200,5 @@ namespace SnakeSurvivors
                 }
             }
         }
-
-        public IEnumerator<SpatialPartition> GetEnumerator()
-        {
-            foreach (var partition in _partitions.Values)
-            {
-                yield return partition;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
