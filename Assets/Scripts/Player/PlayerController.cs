@@ -60,8 +60,6 @@ namespace SnakeSurvivors
 
         private IEnumerator SpawnCo()
         {
-            yield return new WaitForSeconds(2.0f);
-            
             if (_snakeParts.Count > 1) yield break;
 
             var lastPart = _snakeParts.LastOrDefault();
@@ -104,6 +102,8 @@ namespace SnakeSurvivors
             {
                 snakeBait.Attach(snakePart.transform, distance);
             }
+            
+            yield return new WaitForSeconds(2.0f);
 
             StartCoroutine(SpawnCo());
         }

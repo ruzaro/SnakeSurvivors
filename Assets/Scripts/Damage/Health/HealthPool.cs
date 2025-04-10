@@ -37,6 +37,8 @@ namespace SnakeSurvivors
                 died = true;
             }
             
+            Debug.LogError($"{name} : -{amount} -> {_health}");
+            
             NotifyHealthChanged();
 
             if (died)

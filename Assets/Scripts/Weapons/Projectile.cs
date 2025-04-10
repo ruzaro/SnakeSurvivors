@@ -4,12 +4,10 @@ using UnityEngine.Events;
 namespace SnakeSurvivors
 {
     [RequireComponent(typeof(DamageSource))]
-    public class Bullet : MonoBehaviour
+    public class Projectile : MonoBehaviour
     {
-        [SerializeField] private SPColliderTag enemyTag;
-
-        [SerializeField] private UnityEvent<Bullet> onHit;
-        public UnityEvent<Bullet> OnHit => onHit;
+        [SerializeField] private UnityEvent<Projectile> onHit;
+        public UnityEvent<Projectile> OnHit => onHit;
 
         private DamageSource _damageSource;
 
@@ -17,11 +15,11 @@ namespace SnakeSurvivors
         {
             _damageSource = GetComponent<DamageSource>();
         }
-
-        public void OnSPCollision(SPCollider other)
+        
+        private void OnCollisionEnter2D(Collision2D other)
         {
-            if (other.Tag == enemyTag && 
-                other.TryGetComponent(out DamageDestination damageDestination) &&
+            if (other.gameObject.TryGetComponent(out Enemy enemy) &&
+                enemy.TryGetComponent(out DamageDestination damageDestination) &&
                 _damageSource.CanAttack(damageDestination))
             {
                 _damageSource.Attack(damageDestination);

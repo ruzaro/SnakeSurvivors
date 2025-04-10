@@ -1,4 +1,5 @@
 ﻿using System;
+using Pickups;
 using UnityEngine;
 
 namespace SnakeSurvivors
@@ -6,8 +7,6 @@ namespace SnakeSurvivors
     [RequireComponent(typeof(DamageDestination))]
     public class SnakePart : MonoBehaviour
     {
-        [SerializeField] private SPColliderTag enemyTag;
-        
         private DamageDestination _damageDestination;
         public DamageDestination DamageDestination => _damageDestination;
 
@@ -16,16 +15,14 @@ namespace SnakeSurvivors
             _damageDestination = GetComponent<DamageDestination>();
         }
 
-        public void OnSPCollision(SPCollider other)
+        private void OnCollisionEnter2D(Collision2D other)
         {
-            if (other.Tag == enemyTag && 
-                other.TryGetComponent(out DamageSource damageSource) &&
+            if (other.gameObject.TryGetComponent(out Enemy enemy) &&
+                enemy.TryGetComponent(out DamageSource damageSource) &&
                 damageSource.CanAttack(_damageDestination))
             {
                 damageSource.Attack(_damageDestination);
             }
-            
-            // TODO check collision with exp
         }
     }
 }

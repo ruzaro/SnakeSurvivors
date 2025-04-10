@@ -98,16 +98,16 @@ namespace SnakeSurvivors
                 enemy.gameObject.SetActive(true);
                 enemy.Health.ResetHealth();
                 
-                if (enemy.TryGetComponent(out StraightTargetFollower straightTargetFollower))
-                {
-                    var batch = _controller._batches.Min;
-
-                    _controller._batches.Remove(batch);
-                
-                    batch.Add(straightTargetFollower);
-
-                    _controller._batches.Add(batch);
-                }
+                // if (enemy.TryGetComponent(out StraightTargetFollower straightTargetFollower))
+                // {
+                //     var batch = _controller._batches.Min;
+                //
+                //     _controller._batches.Remove(batch);
+                //
+                //     batch.Add(straightTargetFollower);
+                //
+                //     _controller._batches.Add(batch);
+                // }
             }
 
             public override void OnRelease(Enemy enemy)
@@ -120,18 +120,23 @@ namespace SnakeSurvivors
                     actionIfTooFar.SetTarget(null);
                 }
                 
-                if (enemy.TryGetComponent(out StraightTargetFollower straightTargetFollower))
+                if (enemy.TryGetComponent(out EnemyMovement enemyMovement))
                 {
-                    straightTargetFollower.SetTarget(null);
-                    
-                    var batch = _controller._batches.First(x => x.Contains(straightTargetFollower));
-
-                    _controller._batches.Remove(batch);
-                
-                    batch.Remove(straightTargetFollower);
-
-                    _controller._batches.Add(batch);
+                    enemyMovement.SetTarget(null);
                 }
+                
+                // if (enemy.TryGetComponent(out StraightTargetFollower straightTargetFollower))
+                // {
+                //     straightTargetFollower.SetTarget(null);
+                //     
+                //     var batch = _controller._batches.First(x => x.Contains(straightTargetFollower));
+                //
+                //     _controller._batches.Remove(batch);
+                //
+                //     batch.Remove(straightTargetFollower);
+                //
+                //     _controller._batches.Add(batch);
+                // }
             }
 
             public override void OnDestroy(Enemy enemy)
@@ -196,9 +201,14 @@ namespace SnakeSurvivors
                     
                     enemy.transform.position = pos;
 
-                    if (enemy.TryGetComponent(out StraightTargetFollower straightTargetFollower))
+                    // if (enemy.TryGetComponent(out StraightTargetFollower straightTargetFollower))
+                    // {
+                    //     straightTargetFollower.SetTarget(target);
+                    // }
+                    
+                    if (enemy.TryGetComponent(out EnemyMovement enemyMovement))
                     {
-                        straightTargetFollower.SetTarget(target);
+                        enemyMovement.SetTarget(target);
                     }
 
                     if (enemy.TryGetComponent(out ActionIfTooFar destroyIfTooFar))

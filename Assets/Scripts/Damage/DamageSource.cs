@@ -6,20 +6,14 @@ namespace SnakeSurvivors
     {
         [SerializeField] private DamageType damageType;
         [SerializeField] private float damage;
-
-        private Unit _unit;
-        public Unit Unit => _unit;
-
-        private void Awake()
-        {
-            _unit = GetComponent<Unit>();
-        }
+        [SerializeField] private Unit unit;
+        public Unit Unit => unit;
 
         public bool CanAttack(DamageDestination damageDestination)
         {
-            if (_unit == null) return true;
+            if (unit == null) return true;
             if (damageDestination.Unit == null) return true;
-            return _unit.CanAttack(damageDestination.Unit);
+            return unit.CanAttack(damageDestination.Unit);
         }
 
         public void Attack(DamageDestination damageDestination)

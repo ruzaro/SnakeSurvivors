@@ -2,7 +2,8 @@
 
 namespace SnakeSurvivors
 {
-    public class Unit : MonoBehaviour
+    [CreateAssetMenu(fileName = "Unit", menuName = "ScriptableObjects/Team/Unit", order = 0)]
+    public class Unit : ScriptableObject
     {
         [SerializeField] private Team team;
         public Team Team => team;

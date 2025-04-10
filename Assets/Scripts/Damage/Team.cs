@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace SnakeSurvivors
 {
-    [Serializable]
     [CreateAssetMenu(fileName = "Team", menuName = "ScriptableObjects/Team/Team", order = 0)]
     public class Team : ScriptableObject
     {

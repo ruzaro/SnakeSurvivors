@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 
 namespace SnakeSurvivors
@@ -8,16 +7,11 @@ namespace SnakeSurvivors
     {
         [SerializeField] private ArmorType armorType;
         [SerializeField] private float armor;
+        [SerializeField] private Unit unit;
         [SerializeField] private UnityEvent<float> onDamageReceived;
         public UnityEvent<float> OnDamageReceived => onDamageReceived;
         
-        private Unit _unit;
-        public Unit Unit => _unit;
-
-        private void Awake()
-        {
-            _unit = GetComponent<Unit>();
-        }
+        public Unit Unit => unit;
 
         public void ReceiveDamage(float damage, DamageType damageType)
         {

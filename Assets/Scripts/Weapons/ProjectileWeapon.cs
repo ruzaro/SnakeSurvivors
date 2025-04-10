@@ -6,9 +6,9 @@ using Random = UnityEngine.Random;
 
 namespace SnakeSurvivors
 {
-    public class BulletSpawner : MonoBehaviour
+    public class ProjectileWeapon : Weapon
     {
-        [SerializeField] private Bullet bulletPrefab;
+        [SerializeField] private Projectile projectilePrefab;
         [SerializeField] private float shootingCooldown;
 
         [SerializeField] private int maxBullets;
@@ -21,23 +21,23 @@ namespace SnakeSurvivors
 
         private void Awake()
         {
-            _pool = new(this, bulletPrefab, bulletsPoolParent, maxBullets, maxBullets);
+            _pool = new(this, projectilePrefab, bulletsPoolParent, maxBullets, maxBullets);
         }
 
-        private class BulletPool : ObjectPool<Bullet>
+        private class BulletPool : ObjectPool<Projectile>
         {
-            private readonly BulletSpawner _spawner;
-            private readonly Bullet _prefab;
+            private readonly ProjectileWeapon _spawner;
+            private readonly Projectile _prefab;
             private readonly Transform _parent;
             
-            public BulletPool(BulletSpawner spawner, Bullet prefab, Transform parent, int initialCapacity, int maxSize, bool collectionChecks = true) : base(initialCapacity, maxSize, collectionChecks)
+            public BulletPool(ProjectileWeapon spawner, Projectile prefab, Transform parent, int initialCapacity, int maxSize, bool collectionChecks = true) : base(initialCapacity, maxSize, collectionChecks)
             {
                 _spawner = spawner;
                 _prefab = prefab;
                 _parent = parent;
             }
 
-            public override Bullet CreateItem()
+            public override Projectile CreateItem()
             {
                 // TODO bullets parent
                 var bullet = Instantiate(_prefab/*, _parent, true*/);
@@ -59,26 +59,26 @@ namespace SnakeSurvivors
                 return bullet;
             }
 
-            public override void OnGet(Bullet bullet)
+            public override void OnGet(Projectile projectile)
             {
-                bullet.gameObject.SetActive(true);
-                if (bullet.TryGetComponent(out StraightPathFollower pathFollower))
+                projectile.gameObject.SetActive(true);
+                if (projectile.TryGetComponent(out StraightPathFollower pathFollower))
                 {
                     _spawner._followers.Add(pathFollower);   
                 }
             }
 
-            public override void OnRelease(Bullet bullet)
+            public override void OnRelease(Projectile projectile)
             {
-                bullet.gameObject.SetActive(false);
-                bullet.transform.SetParent(_parent);
-                if (bullet.TryGetComponent(out StraightPathFollower pathFollower))
+                projectile.gameObject.SetActive(false);
+                projectile.transform.SetParent(_parent);
+                if (projectile.TryGetComponent(out StraightPathFollower pathFollower))
                 {
                     _spawner._followers.Remove(pathFollower);   
                 }
             }
 
-            public override void OnDestroy(Bullet bullet)
+            public override void OnDestroy(Projectile projectile)
             {
                 
             }
